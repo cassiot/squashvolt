@@ -11,10 +11,17 @@ namespace SquashVolt.Models
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
-        public string VideoId { get; set; }
-        public string UserId { get; set; }
-        public int RefereeDecision { get; set; }
+
+        [BsonElement("matchId")]
+        public string MatchId { get; set; }
+        
+        [BsonElement("shotNumber")]
+        public int ShotNumber { get; set; }
+        
+        [BsonElement("userDecision")]
         public int UserDecision { get; set; }
+        
+        [BsonElement("date")]
         public DateTime Date { get; set; }
     }
 }

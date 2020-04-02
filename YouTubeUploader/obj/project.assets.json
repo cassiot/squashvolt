@@ -6394,11 +6394,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Cassio\\source\\SquashVolt\\YouTubeUploader\\YouTubeUploader.csproj",
+      "projectUniqueName": "C:\\Users\\Cassio\\Documents\\Sources\\SquashVolt\\YouTubeUploader\\YouTubeUploader.csproj",
       "projectName": "YouTubeUploader",
-      "projectPath": "C:\\Users\\Cassio\\source\\SquashVolt\\YouTubeUploader\\YouTubeUploader.csproj",
+      "projectPath": "C:\\Users\\Cassio\\Documents\\Sources\\SquashVolt\\YouTubeUploader\\YouTubeUploader.csproj",
       "packagesPath": "C:\\Users\\Cassio\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Cassio\\source\\SquashVolt\\YouTubeUploader\\obj\\",
+      "outputPath": "C:\\Users\\Cassio\\Documents\\Sources\\SquashVolt\\YouTubeUploader\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Microsoft\\Xamarin\\NuGet\\",

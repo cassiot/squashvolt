@@ -52,27 +52,27 @@ namespace SquashVolt
     //    }
     //}
 
-    public class GetAllVideosFromMatch
-    {
-        private readonly IMongoDatabase db;
+    //public class GetAllVideosFromMatch
+    //{
+    //    private readonly IMongoDatabase db;
 
-        public GetAllVideosFromMatch(MongoClient mongo)
-        {
-            db = mongo.GetDatabase("SquashVoltDB");
-        }
+    //    public GetAllVideosFromMatch(MongoClient mongo)
+    //    {
+    //        db = mongo.GetDatabase("SquashVoltDB");
+    //    }
 
-        [FunctionName("Get")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "videos")] HttpRequest req, ILogger log)
-        {
-            var matchesQuery = await db.GetCollection<Match>("Matches").FindAsync(v => true);
-            var matches = await matchesQuery.ToListAsync();
+    //    [FunctionName("Get")]
+    //    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "videos")] HttpRequest req, ILogger log)
+    //    {
+    //        var matchesQuery = await db.GetCollection<Match>("Matches").FindAsync(v => true);
+    //        var matches = await matchesQuery.ToListAsync();
 
-            var rng = new Random();
-            var match = matches.ElementAt(rng.Next(matches.Count()));
+    //        var rng = new Random();
+    //        var match = matches.ElementAt(rng.Next(matches.Count()));
 
-            var videos = await db.GetCollection<Video>("Videos").Find(v => v.MatchId == match.Id).SortBy(v=> v.Index).ToListAsync();
+    //        var videos = await db.GetCollection<Video>("Videos").Find(v => v.MatchId == match.Id).SortBy(v=> v.Index).ToListAsync();
 
-            return (ActionResult)new OkObjectResult(videos);
-        }
-    }
+    //        return (ActionResult)new OkObjectResult(videos);
+    //    }
+    //}
 }

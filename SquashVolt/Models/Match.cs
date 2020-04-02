@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System.Collections.Generic;
 
 namespace SquashVolt.Models
 {
@@ -8,10 +9,20 @@ namespace SquashVolt.Models
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
-        public string Title { get; set; }
-        public string Player1 { get; set; }
-        public string Player2 { get; set; }
-        public string Tournment { get; set; }
-        public int Year { get; set; }
+
+        [BsonElement("youTubeId")]
+        public string YouTubeId { get; set; }
+
+        [BsonElement("shots")]
+        public IList<Shot> Shots { get; set; }
+    }
+
+    public class Shot
+    {
+        [BsonElement("number")]
+        public int Number { get; set; }
+        
+        [BsonElement("time")]
+        public int Time { get; set; }
     }
 }

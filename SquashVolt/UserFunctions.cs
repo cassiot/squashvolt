@@ -32,22 +32,21 @@ namespace SquashVolt
             {
                 Date = DateTime.UtcNow,
                 UserDecision = voteDTO.UserDecision,
-                RefereeDecision = voteDTO.RefereeDecision,
-                UserId = null,
-                VideoId = voteDTO.VideoId
+                MatchId = voteDTO.MatchId,
+                ShotNumber = voteDTO.ShotNumber
             };
 
             var userVoteCollection = db.GetCollection<UserVote>("UserVotes");
             userVoteCollection.InsertOne(vote);
 
-            return (ActionResult)new OkResult();
+            return new OkResult();
         }
 
         public class UserVoteDTO
         {
             public int UserDecision { get; set; }
-            public int RefereeDecision { get; set; }
-            public string VideoId { get; set; }
+            public string MatchId { get; set; }
+            public int ShotNumber { get; set; }
         }
     }
 }
