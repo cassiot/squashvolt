@@ -23,6 +23,6 @@ namespace SquashVolt.Models
         public int Number { get; set; }
         
         [BsonElement("time")]
-        public int Time { get; set; }
+        public decimal Time { get; set; }
     }
 }

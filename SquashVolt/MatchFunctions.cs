@@ -64,12 +64,9 @@ namespace SquashVolt
         }
 
         [FunctionName("GetMatch")]
-        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "matches")] HttpRequest req, ILogger log)
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "matches/{id}")] HttpRequest req, string id, ILogger log)
         {
-            var matches = await db.GetCollection<Match>("Matches").Find(v => true).ToListAsync();
-
-            var rng = new Random();
-            var match = matches.ElementAt(rng.Next(matches.Count()));
+            var match = await db.GetCollection<Match>("Matches").Find(v => v.Id == id).SingleOrDefaultAsync();
 
             var votes = await db.GetCollection<UserVote>("UserVotes").Find(uv => uv.MatchId == match.Id).ToListAsync();
 
@@ -131,7 +128,7 @@ namespace SquashVolt
             {
                 public int Number { get; set; }
 
-                public int Time { get; set; }
+                public decimal Time { get; set; }
 
                 public int LetVotes { get; set; }
 
