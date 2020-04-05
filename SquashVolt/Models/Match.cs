@@ -15,6 +15,10 @@ namespace SquashVolt.Models
 
         [BsonElement("shots")]
         public IList<Shot> Shots { get; set; }
+
+        [BsonElement("isFullMatch")]
+        public bool IsFullMatch { get; set; }
+
     }
 
     public class Shot

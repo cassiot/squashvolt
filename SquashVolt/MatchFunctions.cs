@@ -15,45 +15,6 @@ using System.Collections.Generic;
 
 namespace SquashVolt
 {
-    //public static class Function1
-    //{
-    //    [FunctionName("Function1")]
-    //    public static async Task<IActionResult> Run(
-    //        [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
-    //        ILogger log)
-    //    {
-    //        log.LogInformation("C# HTTP trigger function processed a request.");
-
-    //        string name = req.Query["name"];
-
-    //        string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-    //        dynamic data = JsonConvert.DeserializeObject(requestBody);
-    //        name = name ?? data?.name;
-
-    //        return name != null
-    //            ? (ActionResult)new OkObjectResult($"Hello, {name}")
-    //            : new BadRequestObjectResult("Please pass a name on the query string or in the request body");
-    //    }
-    //}
-
-    //public class GetVideoById
-    //{
-    //    private readonly IMongoDatabase db;
-
-    //    public GetVideoById(MongoClient mongo)
-    //    {
-    //        db = mongo.GetDatabase("SquashVoltDB");
-    //    }
-
-    //    [FunctionName("GetById")]
-    //    public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "videos/{id}")] HttpRequest req, string id, ILogger log)
-    //    {
-    //        var video = db.GetCollection<Video>("Videos").Find(v => v.Id == id).SingleOrDefault();
-
-    //        return (ActionResult)new OkObjectResult(video);
-    //    }
-    //}
-
     public class GetMatch
     {
         private readonly IMongoDatabase db;
@@ -80,16 +41,16 @@ namespace SquashVolt
                 dic[vote.ShotNumber][vote.UserDecision]++;
             }
 
-            var ret = new MatchDTO()
+            var ret = new GetMatchDTO()
             {
                 Id = match.Id,
                 YouTubeId = match.YouTubeId,
-                Shots = new List<MatchDTO.Shot>()
+                Shots = new List<GetMatchDTO.Shot>()
             };
 
             foreach (var shot in match.Shots)
             {
-                var shotDTO = new MatchDTO.Shot()
+                var shotDTO = new GetMatchDTO.Shot()
                 {
                     Number = shot.Number,
                     Time = shot.Time,
@@ -116,7 +77,7 @@ namespace SquashVolt
             return new OkObjectResult(ret);
         }
 
-        public class MatchDTO
+        public class GetMatchDTO
         {
             public string Id { get; set; }
 
@@ -144,6 +105,40 @@ namespace SquashVolt
 
                 public int TotalVotes { get; set; }
             }
+        }
+    }
+
+    public class GetMatches
+    {
+        private readonly IMongoDatabase db;
+
+        public GetMatches(MongoClient mongo)
+        {
+            db = mongo.GetDatabase("SquashVoltDB");
+        }
+
+        [FunctionName("GetMatches")]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "matches")] HttpRequest req, ILogger log)
+        {
+            var matches = await db.GetCollection<Match>("Matches").Find(v => true).ToListAsync();
+
+            var matchesDTO = matches.Select(m => new GetMatchesDTO 
+            {
+                Id = m.Id,
+                YouTubeId = m.YouTubeId,
+                IsFullMatch = m.IsFullMatch
+            });
+
+            return new OkObjectResult(matchesDTO);
+        }
+
+        public class GetMatchesDTO
+        {
+            public string Id { get; set; }
+
+            public string YouTubeId { get; set; }
+
+            public bool IsFullMatch { get; set; }
         }
     }
 }
