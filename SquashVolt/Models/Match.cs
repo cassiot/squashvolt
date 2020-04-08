@@ -28,5 +28,8 @@ namespace SquashVolt.Models
         
         [BsonElement("time")]
         public decimal Time { get; set; }
+        
+        [BsonElement("officialDecision")]
+        public int OfficialDecision { get; set; }
     }
 }

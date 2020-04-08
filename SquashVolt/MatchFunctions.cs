@@ -27,7 +27,7 @@ namespace SquashVolt
         [FunctionName("GetMatch")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "matches/{id}")] HttpRequest req, string id, ILogger log)
         {
-            var match = await db.GetCollection<Match>("Matches").Find(v => v.Id == id).SingleOrDefaultAsync();
+            var match = await db.GetCollection<Match>("Matches").Find(m => m.Id == id).SingleOrDefaultAsync();
 
             var votes = await db.GetCollection<UserVote>("UserVotes").Find(uv => uv.MatchId == match.Id).ToListAsync();
 
@@ -45,15 +45,16 @@ namespace SquashVolt
             {
                 Id = match.Id,
                 YouTubeId = match.YouTubeId,
-                Shots = new List<GetMatchDTO.Shot>()
+                Shots = new List<GetMatchDTO.ShotDTO>()
             };
 
             foreach (var shot in match.Shots)
             {
-                var shotDTO = new GetMatchDTO.Shot()
+                var shotDTO = new GetMatchDTO.ShotDTO()
                 {
                     Number = shot.Number,
                     Time = shot.Time,
+                    OfficialDecision = shot.OfficialDecision
                 };
 
                 var totalVotes = dic.ContainsKey(shot.Number) ? dic[shot.Number][0] + dic[shot.Number][1] + dic[shot.Number][2] : 0;
@@ -83,13 +84,15 @@ namespace SquashVolt
 
             public string YouTubeId { get; set; }
 
-            public IList<Shot> Shots { get; set; }
+            public IList<ShotDTO> Shots { get; set; }
 
-            public class Shot
+            public class ShotDTO
             {
                 public int Number { get; set; }
 
                 public decimal Time { get; set; }
+
+                public int OfficialDecision { get; set; }
 
                 public int LetVotes { get; set; }
 
@@ -120,9 +123,9 @@ namespace SquashVolt
         [FunctionName("GetMatches")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "get", Route = "matches")] HttpRequest req, ILogger log)
         {
-            var matches = await db.GetCollection<Match>("Matches").Find(v => true).ToListAsync();
+            var matches = await db.GetCollection<Match>("Matches").Find(m => true).ToListAsync();
 
-            var matchesDTO = matches.Select(m => new GetMatchesDTO 
+            var matchesDTO = matches.Select(m => new GetMatchesDTO
             {
                 Id = m.Id,
                 YouTubeId = m.YouTubeId,
@@ -139,6 +142,51 @@ namespace SquashVolt
             public string YouTubeId { get; set; }
 
             public bool IsFullMatch { get; set; }
+        }
+    }
+
+    public class PostMatch
+    {
+        private readonly IMongoDatabase db;
+
+        public PostMatch(MongoClient mongo)
+        {
+            db = mongo.GetDatabase("SquashVoltDB");
+        }
+
+        [FunctionName("PostMatch")]
+        public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "matches")] HttpRequest req, ILogger log)
+        {
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            var matchDTO = JsonConvert.DeserializeObject<MatchDTO>(requestBody);
+
+            var matchUpdate = Builders<Match>.Update
+                .Set(m => m.IsFullMatch, matchDTO.IsFullMatch)
+                .Set(m => m.YouTubeId, matchDTO.YouTubeId)
+                .Set(m => m.Shots, matchDTO.Shots.Select(s => new Shot() { Number = s.Number, OfficialDecision = s.OfficialDecision, Time = s.Time }).ToList());
+
+            var matchCollection = db.GetCollection<Match>("Matches");
+            matchCollection.FindOneAndUpdate(m => m.Id == matchDTO.Id, matchUpdate);
+
+            return new OkResult();
+        }
+
+        public class MatchDTO
+        {
+            public string Id { get; set; }
+            public bool IsFullMatch { get; set; }
+            public string YouTubeId { get; set; }
+            public IEnumerable<ShotDTO> Shots { get; set; }
+
+        }
+
+        public class ShotDTO
+        {
+            public int Number { get; set; }
+
+            public decimal Time { get; set; }
+
+            public int OfficialDecision { get; set; }
         }
     }
 }
