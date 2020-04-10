@@ -19,16 +19,18 @@ namespace SquashVolt.Models
         [BsonElement("isFullMatch")]
         public bool IsFullMatch { get; set; }
 
+        [BsonElement("title")]
+        public string Title { get; set; }
     }
 
     public class Shot
     {
         [BsonElement("number")]
         public int Number { get; set; }
-        
+
         [BsonElement("time")]
         public decimal Time { get; set; }
-        
+
         [BsonElement("officialDecision")]
         public int OfficialDecision { get; set; }
     }

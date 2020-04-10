@@ -157,18 +157,40 @@ namespace SquashVolt
         [FunctionName("PostMatch")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post", Route = "matches")] HttpRequest req, ILogger log)
         {
+            string name = req.Query["name"];
+
+            if (name != "Ian")
+                return new OkObjectResult("OK?");
+
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var matchDTO = JsonConvert.DeserializeObject<MatchDTO>(requestBody);
 
-            var matchUpdate = Builders<Match>.Update
-                .Set(m => m.IsFullMatch, matchDTO.IsFullMatch)
-                .Set(m => m.YouTubeId, matchDTO.YouTubeId)
-                .Set(m => m.Shots, matchDTO.Shots.Select(s => new Shot() { Number = s.Number, OfficialDecision = s.OfficialDecision, Time = s.Time }).ToList());
-
             var matchCollection = db.GetCollection<Match>("Matches");
-            matchCollection.FindOneAndUpdate(m => m.Id == matchDTO.Id, matchUpdate);
 
-            return new OkResult();
+            if (String.IsNullOrWhiteSpace(matchDTO.Id))
+            {
+                var match = new Match()
+                {
+                    IsFullMatch = matchDTO.IsFullMatch,
+                    Shots = matchDTO.Shots.Select(s => new Shot() { Number = s.Number, OfficialDecision = s.OfficialDecision, Time = s.Time }).ToList(),
+                    Title = matchDTO.Title,
+                    YouTubeId = matchDTO.YouTubeId
+                };
+
+                matchCollection.InsertOne(match);
+            }
+            else
+            {
+                var matchUpdate = Builders<Match>.Update
+                    .Set(m => m.IsFullMatch, matchDTO.IsFullMatch)
+                    .Set(m => m.YouTubeId, matchDTO.YouTubeId)
+                    .Set(m => m.Title, matchDTO.Title)
+                    .Set(m => m.Shots, matchDTO.Shots.Select(s => new Shot() { Number = s.Number, OfficialDecision = s.OfficialDecision, Time = s.Time }).ToList());
+
+                matchCollection.FindOneAndUpdate(m => m.Id == matchDTO.Id, matchUpdate);
+            }
+
+            return new CreatedResult("", null);
         }
 
         public class MatchDTO
@@ -177,7 +199,7 @@ namespace SquashVolt
             public bool IsFullMatch { get; set; }
             public string YouTubeId { get; set; }
             public IEnumerable<ShotDTO> Shots { get; set; }
-
+            public string Title { get; set; }
         }
 
         public class ShotDTO
