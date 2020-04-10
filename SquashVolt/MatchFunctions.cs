@@ -129,7 +129,8 @@ namespace SquashVolt
             {
                 Id = m.Id,
                 YouTubeId = m.YouTubeId,
-                IsFullMatch = m.IsFullMatch
+                IsFullMatch = m.IsFullMatch,
+                Title = m.Title
             });
 
             return new OkObjectResult(matchesDTO);
@@ -142,6 +143,8 @@ namespace SquashVolt
             public string YouTubeId { get; set; }
 
             public bool IsFullMatch { get; set; }
+            
+            public string Title { get; set; }
         }
     }
 
